@@ -1,33 +1,38 @@
 import React from 'react';
-import { useQuery, useMutation } from '../../lib/api';
+import { gql } from 'apollo-boost';
+import { useQuery, useMutation } from 'react-apollo';
+import { List, Avatar, Button, Spin } from 'antd';
+import { Listings as ListingsData } from './__generated__/Listings';
 import {
-  DeleteListingData,
+  DeleteListing as DeleteListingData,
   DeleteListingVariables,
-  ListingsData,
-} from './types';
+} from './__generated__/DeleteListing';
+import { ListingsSkeleton } from './components';
+import './styles/Listings.css';
 
-const LISTINGS = `
-query Listings {
+const LISTINGS = gql`
+  query Listings {
     listings {
-        id
-        title
-        image
-        address
-        price
-        numOfGuests
-        numOfBeds
-        numOfBaths
-        rating
+      id
+      title
+      image
+      address
+      price
+      numOfGuests
+      numOfBeds
+      numOfBaths
+      rating
     }
-}`;
+  }
+`;
 
-const DELETE_LISTING = `
-    mutation DeleteListing($id: ID!) {
-        deleteListing(id: $id) {
-            id
-            title
-        }
+const DELETE_LISTING = gql`
+  mutation DeleteListing($id: ID!) {
+    deleteListing(id: $id) {
+      id
+      title
     }
+  }
 `;
 
 interface Props {
@@ -42,49 +47,62 @@ export const Listings = ({ title }: Props) => {
   ] = useMutation<DeleteListingData, DeleteListingVariables>(DELETE_LISTING);
 
   const handleDeleteListing = async (id: string) => {
-    await deleteListing({ id });
+    await deleteListing({ variables: { id } });
     refetch();
   };
 
   const listings = data ? data.listings : null;
 
   const listingsList = listings ? (
-    <ul>
-      {listings.map((listing) => {
-        return (
-          <li key={listing.id}>
-            {listing.title}
-            <button onClick={() => handleDeleteListing(listing.id)}>
+    <List
+      itemLayout='horizontal'
+      dataSource={listings}
+      renderItem={(listing) => (
+        <List.Item
+          actions={[
+            <Button
+              type='primary'
+              onClick={() => handleDeleteListing(listing.id)}>
               Delete
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+            </Button>,
+          ]}>
+          <List.Item.Meta
+            title={listing.title}
+            description={listing.address}
+            avatar={<Avatar src={listing.image} shape='square' size={48} />}
+          />
+        </List.Item>
+      )}
+    />
   ) : null;
-
-  if (error) {
-    return <h2>Something went wrong...</h2>;
-  }
 
   if (loading) {
-    return <h2>Loading...</h2>;
+    return (
+      <div className='listings'>
+        <ListingsSkeleton title={title} />
+      </div>
+    );
   }
 
-  const deleteListingLoadingMessage = deleteListingLoading ? (
-    <h4>Deleting listing...</h4>
-  ) : null;
+  if (error) {
+    return (
+      <div className='listings'>
+        <ListingsSkeleton title={title} error />
+      </div>
+    );
+  }
 
   const deleteListingErrorMessage = deleteListingError ? (
     <h4>Something went wrong...</h4>
   ) : null;
 
   return (
-    <div>
-      <h2>{title}</h2>
-      {listingsList}
-      {deleteListingLoadingMessage}
-      {deleteListingErrorMessage}
+    <div className='listings'>
+      <Spin spinning={deleteListingLoading}>
+        <h2>{title}</h2>
+        {listingsList}
+        {deleteListingErrorMessage}
+      </Spin>
     </div>
   );
 };

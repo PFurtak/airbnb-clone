@@ -1,11 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ApolloClient from 'apollo-boost';
+import { ApolloProvider } from 'react-apollo';
 import reportWebVitals from './reportWebVitals';
 import { Listings } from './sections';
+import './styles/index.css';
+
+const client = new ApolloClient({
+  uri: '/api',
+});
 
 ReactDOM.render(
   <React.StrictMode>
-    <Listings title ="Clone Listings"/>
+    <ApolloProvider client={client}>
+      <Listings title='Clone Listings' />
+    </ApolloProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
