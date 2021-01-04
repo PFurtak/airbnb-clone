@@ -7,11 +7,11 @@ const { Text, Title } = Typography;
 export const Login = () => {
   return (
     <Content className='log-in'>
-      <Card>
+      <Card className='log-in-card'>
         <div className='log-in-card__intro'>
           <Title level={3} className='log-in-card__intro-title'>
             <span role='img' aria-label='wave'>
-              wave
+              👋
             </span>
           </Title>
           <Title level={3} className='log-in-card__intro-title'>
@@ -22,6 +22,10 @@ export const Login = () => {
         <button className='log-in-card__google-button'>
           Sign in with Google
         </button>
+        <Text type='secondary'>
+          Note: By signing in, you'll be redirected to the Google consent form
+          to sign in with your Google account.
+        </Text>
       </Card>
     </Content>
   );

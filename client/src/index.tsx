@@ -23,7 +23,7 @@ const client = new ApolloClient({
 const App = () => {
   return (
     <Router>
-      <Layout id='App'>
+      <Layout id='app'>
         <Switch>
           <Route exact path='/' component={Home} />
           <Route exact path='/host' component={Host} />
