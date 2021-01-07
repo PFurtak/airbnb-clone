@@ -11,7 +11,7 @@ export const Google = {
     access_type: 'online',
     scope: [
       'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.gogoleapis.com/auth/userinfor.profile',
+      'https://www.googleapis.com/auth/userinfo.profile',
     ],
   }),
   logIn: async (code: string) => {
