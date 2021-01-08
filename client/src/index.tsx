@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { render } from 'react-dom';
+import { AppHeader } from './sections/AppHeader';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
 import reportWebVitals from './reportWebVitals';
-import { Layout } from 'antd';
+import { Affix, Layout } from 'antd';
 import {
   Home,
   Host,
@@ -35,6 +36,9 @@ const App = () => {
   return (
     <Router>
       <Layout id='app'>
+        <Affix offsetTop={0} className='app__affix-header'>
+          <AppHeader viewer={viewer} setViewer={setViewer} />
+        </Affix>
         <Switch>
           <Route exact path='/' component={Home} />
           <Route exact path='/host' component={Host} />
