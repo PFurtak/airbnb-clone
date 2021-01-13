@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { render } from 'react-dom';
 import { AppHeader } from './sections/AppHeader';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import ApolloClient from 'apollo-boost';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider, useMutation } from 'react-apollo';
 import reportWebVitals from './reportWebVitals';
-import { Affix, Layout } from 'antd';
+import { Affix, Layout, Spin } from 'antd';
 import {
   Home,
   Host,
@@ -15,8 +15,14 @@ import {
   NotFound,
   User,
 } from './sections';
+import { LOG_IN } from './lib/graphql/mutations/LogIn';
+import {
+  LogIn as LogInData,
+  LogInVariables,
+} from './lib/graphql/mutations/LogIn/__generated__/LogIn';
 import { Viewer } from './lib/types/types';
 import './styles/index.css';
+import { AppHeaderSkeleton, ErrorBanner } from './lib/components';
 
 const client = new ApolloClient({
   uri: '/api',
@@ -32,10 +38,39 @@ const initialViewer: Viewer = {
 
 const App = () => {
   const [viewer, setViewer] = useState<Viewer>(initialViewer);
-  console.log(viewer);
+  const [logIn, { error }] = useMutation<LogInData, LogInVariables>(LOG_IN, {
+    onCompleted: (data) => {
+      if (data && data.logIn) {
+        setViewer(data.logIn);
+      }
+    },
+  });
+
+  const logInRef = useRef(logIn);
+
+  useEffect(() => {
+    logInRef.current();
+  }, []);
+
+  if (!viewer.didRequest && !error) {
+    return (
+      <Layout className='app-skeleton'>
+        <AppHeaderSkeleton />
+        <div className='app-skeleton__spin-section'>
+          <Spin size='large' tip='Launching app...' />
+        </div>
+      </Layout>
+    );
+  }
+
+  const logInErrorBannerElement = error ? (
+    <ErrorBanner description='We were unable to verify the login attempt, please try again.' />
+  ) : null;
+
   return (
     <Router>
       <Layout id='app'>
+        {logInErrorBannerElement}
         <Affix offsetTop={0} className='app__affix-header'>
           <AppHeader viewer={viewer} setViewer={setViewer} />
         </Affix>
